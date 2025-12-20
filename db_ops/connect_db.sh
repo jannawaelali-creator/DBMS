@@ -38,7 +38,7 @@ connected_db_menu() {
 }
 
 # Function to connect to a database
-#connect_to_database() {
+connect_to_database() {
     echo "Available Databases:"
     ls "$DB_PATH"
 
@@ -52,7 +52,7 @@ connected_db_menu() {
     else
         echo "Database '$db_name' does not exist."
     fi
-#}
+}
 
 # Run the connect function
 connect_to_database
