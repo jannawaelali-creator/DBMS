@@ -6,6 +6,9 @@ mkdir -p "$DB_DIR"
 
 
  drop_database(){
+	 echo "Available databases"
+	 ls $DB_DIR
+
 read -p "Enter database name to drop: " db_name
       if [ -d "$DB_DIR/$db_name" ]
      then
