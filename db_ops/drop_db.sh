@@ -10,7 +10,30 @@ mkdir -p "$DB_DIR"
 	 ls $DB_DIR
 
 read -p "Enter database name to drop: " db_name
-      if [ -d "$DB_DIR/$db_name" ]
+
+  db_name=$(echo "$db_name" | xargs)  # trim spaces
+
+        # Check if empty
+        if [[ -z "$db_name" ]]; then
+            echo "Invalid database name. Must not be empty."
+            return
+        fi
+
+        # Check for spaces
+        if [[ "$db_name" == *" "* ]]; then
+            echo "Invalid database name. Must not contain spaces."
+            return
+        fi
+
+        # Check if starts with a letter
+        if [[ ! "$db_name" =~ ^[a-zA-Z] ]]; then
+            echo "Invalid database name. Must start with a letter."
+            return
+        fi
+
+
+
+   if [ -d "$DB_DIR/$db_name" ]
      then
       while true; do
         read -r -p "Are you sure you want to delete database '$db_name'? [y/n]: " confirm
