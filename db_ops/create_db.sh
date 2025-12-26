@@ -20,7 +20,7 @@ create_database() {
             return
     fi
 
-    if [[ "$db_name" != [a-z]* || "$db_name" != [A-Z]* ]]
+    if [[ "$db_name" != [a-zA-Z]* ]]
     then
             echo "Invalid database name."
             echo "Must start with an alphabetic character."
