@@ -1,0 +1,5 @@
+Table Name: table1
+Columns: 3
+primary_key:name:int
+column:a:str
+column:s:str
