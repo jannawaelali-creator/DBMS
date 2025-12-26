@@ -1,0 +1,5 @@
+Table Name: janna
+Columns: 3
+primary_key:id:int
+column:sal:int
+column:age:int

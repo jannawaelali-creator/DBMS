@@ -18,7 +18,7 @@ create_table() {
         return
     elif [ -f "$table_name.table" ]; then
         echo "Table already exists!"
-        create_table
+        return
     fi
 
     # ---------------- Columns count ----------------
@@ -36,6 +36,7 @@ create_table() {
 
     header="|"
     meta_lines=()
+   col_names=()
 
     # ---------------- Columns loop ----------------
     for ((i=1; i<=col_count; i++)); do
@@ -51,7 +52,10 @@ create_table() {
                 echo "Column name cannot contain spaces!"
             elif [[ ! "$col_name" =~ ^[a-zA-Z] ]]; then
                 echo "Column name must start with a letter!"
-            else
+
+	    elif [[ " ${col_names[@]} " =~ " $col_name " ]]; then
+        echo "Column name '$col_name' already exists! Choose another name."
+	   else
                 break
             fi
         done
@@ -69,6 +73,7 @@ create_table() {
             done
 
             meta_lines+=("primary_key:$col_name:$col_type")
+	    col_names+=("$col_name")
 
         # ---- Normal columns ----
         else
@@ -83,6 +88,7 @@ create_table() {
             done
 
             meta_lines+=("column:$col_name:$col_type")
+	    col_names+=("$col_name")
         fi
 
         header="$header $(printf '%-20s' "$col_name") |"

@@ -29,7 +29,10 @@ insert_table() {
         return
     fi
 
-    
+col_names=()
+col_types=()
+primary_key=""
+  
 # Read each column line directly
     while IFS=: read -r key name type; do
     col_names+=("$name")
@@ -39,56 +42,72 @@ insert_table() {
     fi
  done < <(tail -n +3 "$meta_file")
 
+temp_values=()
 
+for i in "${!col_names[@]}"; do
+    while true; do
 
-    # Insert values
-    values=()
-    for i in "${!col_names[@]}"; do
-        while true; do
+        if [[ "${col_names[i]}" == "$primary_key" ]]; then
+            prompt="Enter value for PRIMARY KEY '${col_names[i]}' (${col_types[i]}): "
+        else
             prompt="Enter value for column '${col_names[i]}' (${col_types[i]}): "
-            if [[ "${col_names[i]}" == "$primary_key" ]]; then
-                prompt="Enter value for PRIMARY KEY '${col_names[i]}' (${col_types[i]}, must be unique & not null): "
-            fi
+        fi
 
-            read -r -p "$prompt" val
+        read -r -p "$prompt" val
 
-            # Not null check for primary key
-            if [[ "${col_names[i]}" == "$primary_key" && -z "$val" ]]; then
-                echo "Primary key cannot be empty!"
-                continue
-            fi
+        # Ctrl+D (EOF) → cancel safely
+        if [[ $? -ne 0 ]]; then
+            echo -e "\nInsert canceled."
+            return
+        fi
 
-            # Type check
-            if [[ "${col_types[i]}" == "int" ]] && ! [[ "$val" =~ ^[0-9]+$ ]]; then
-                echo "Invalid integer. Try again."
-                continue
-            elif [[ "${col_types[i]}" == "str" ]] && [[ -z "$val" ]]; then
-                echo "String cannot be empty."
-                continue
-            fi
+        # Primary key not null
+        if [[ "${col_names[i]}" == "$primary_key" && -z "$val" ]]; then
+            echo "Primary key cannot be empty. Try again."
+            continue
+        fi
 
-            # Unique check for primary key
-           # Unique check for primary key
-          if [[ "${col_names[i]}" == "$primary_key" ]]; then
-                 if grep -q "^| *$val *|" "$table_name.table"; then
-                 echo "Primary key '$primary_key' must be unique! Value already exists."
+        # Type validation
+        if [[ "${col_types[i]}" == "int" && ! "$val" =~ ^[0-9]+$ ]]; then
+            echo "Invalid integer. Try again."
+            continue
+        fi
+
+        if [[ "${col_types[i]}" == "str" && -z "$val" ]]; then
+            echo "String cannot be empty. Try again."
+            continue
+        fi
+
+        # PK uniqueness
+        if [[ "${col_names[i]}" == "$primary_key" ]]; then
+            if awk -F'|' -v v="$val" '
+                NR>2 {
+                    gsub(/^[ \t]+|[ \t]+$/, "", $2)
+                    if ($2 == v) exit 1
+                }
+            ' "$table_name.table"
+            then
+                :
+            else
+                echo "Primary key already exists. Try again."
                 continue
             fi
         fi
 
-
-            break
-        done
-        values+=("$val")
+        # ✅ value accepted
+        temp_values+=("$val")
+        break
     done
+done
 
+
+   
     # Format row and append to table
     row="|"
-    for val in "${values[@]}"; do
+    for val in "${temp_values[@]}"; do
         row="$row $(printf '%-20s' "$val") |"
     done
 
     echo "$row" >> "$table_name.table"
     echo "Row inserted successfully into '$table_name'."
 }
-

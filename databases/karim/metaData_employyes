@@ -1,0 +1,5 @@
+Table Name: employyes
+Columns: 3
+primary_key:id:int
+column:age:str
+column:salary:int
