@@ -3,7 +3,7 @@ source ./table_ops/create_table.sh
 source ./table_ops/list_table.sh
 source ./table_ops/insert_table.sh
 source ./table_ops/drop_table.sh
-
+source ./table_ops/update_table.sh
 
 DB_PATH="./databases"
 
@@ -40,7 +40,7 @@ connected_db_menu() {
             4) insert_table  ;;
             5) ./table_ops/select_table.sh "$DB_PATH/$db_name" ;;
             6) ./table_ops/delete_table.sh "$DB_PATH/$db_name" ;;
-            7) ./table_ops/update_table.sh "$DB_PATH/$db_name" ;;
+            7) update_table ;;
             8) break ;;
             *) echo "Invalid option" ;;
         esac

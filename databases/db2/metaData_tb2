@@ -1,0 +1,4 @@
+Table Name: tb2
+Columns: 2
+primary_key:ids:int
+column:age:int

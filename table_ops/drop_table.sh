@@ -4,22 +4,20 @@ drop_table() {
     echo -e "\n=== Drop Table ===\n"
 
     # List available tables
-    tables=(*.table)
+    tables=(*.table "Exit")
     if [ ${#tables[@]} -eq 0 ]; then
         echo "No tables found in this database."
         return
     fi
 
-    echo "Available tables:"
-    for t in "${tables[@]}"; do
-        echo "- ${t%.table}"  # remove .table extension
-    done
-    echo ""
 
     # Let user select table to drop
     PS3="Enter the number of the table to drop: "
     select t in "${tables[@]}"; do
-        if [[ -n "$t" ]]; then
+	if [[ "$t" == "Exit" ]]; then
+	    echo "Cancelled table deletion."
+	    return
+        elif [[ -n "$t" ]]; then
             table_name="${t%.table}"
             break
         else
