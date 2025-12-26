@@ -2,6 +2,7 @@
 source ./table_ops/create_table.sh
 source ./table_ops/list_table.sh
 source ./table_ops/insert_table.sh
+source ./table_ops/drop_table.sh
 
 
 DB_PATH="./databases"
@@ -35,7 +36,7 @@ connected_db_menu() {
         case $choice in
             1) create_table  ;;
             2) list_tables  ;;
-            3) ./table_ops/drop_table.sh "$DB_PATH/$db_name" ;;
+            3) drop_table  ;;
             4) insert_table  ;;
             5) ./table_ops/select_table.sh "$DB_PATH/$db_name" ;;
             6) ./table_ops/delete_table.sh "$DB_PATH/$db_name" ;;
