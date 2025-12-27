@@ -73,10 +73,21 @@ for i in "${!col_names[@]}"; do
             continue
         fi
 
-        if [[ "${col_types[i]}" == "str" && -z "$val" ]]; then
-            echo "String cannot be empty. Try again."
-            continue
-        fi
+        if [[ "${col_types[i]}" == "str" ]]; then
+           # Remove leading/trailing spaces
+              val=$(echo "$val" | xargs)
+	      # Check empty
+              if [[ -z "$val" ]]; then
+         echo "String cannot be empty. Try again."
+        continue
+    fi
+
+    # Check only letters and optional spaces
+    if ! [[ "$val" =~ ^[a-zA-Z[:space:]]+$ ]]; then
+        echo "Invalid string. Only letters and spaces allowed. Try again."
+        continue
+    fi
+ fi
 
         # PK uniqueness
         if [[ "${col_names[i]}" == "$primary_key" ]]; then
