@@ -35,5 +35,5 @@ create_database() {
         echo "Database '$db_name' created successfully."
     fi
 }
-create_database
+
 
