@@ -1,0 +1,4 @@
+Table Name: tb1
+Columns: 2
+primary_key:id:int
+column:name:str

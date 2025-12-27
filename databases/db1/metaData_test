@@ -1,0 +1,5 @@
+Table Name: test
+Columns: 3
+primary_key:id:int
+column:name:str
+column:age:int
