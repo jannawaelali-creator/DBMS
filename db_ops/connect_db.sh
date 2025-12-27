@@ -33,7 +33,7 @@ connected_db_menu() {
         echo "+--------------------------------------+"
 
         read -r -p "Choose: " choice
-
+        choice="${choice//[[:space:]]/}"
         case $choice in
             1) create_table  ;;
             2) list_tables  ;;
@@ -103,8 +103,6 @@ connect_to_database() {
 
 
 
-# Run the connect function
- connect_to_database
 
 
  

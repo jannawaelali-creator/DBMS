@@ -15,5 +15,5 @@ list_databases() {
     fi
 }
 
-list_databases
+
 
