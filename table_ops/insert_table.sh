@@ -68,26 +68,30 @@ for i in "${!col_names[@]}"; do
         fi
 
         # Type validation
-        if [[ "${col_types[i]}" == "int" && ! "$val" =~ ^[0-9]+$ ]]; then
-            echo "Invalid integer. Try again."
-            continue
+        if [[ "${col_types[i]}" == "int" ]];then
+	    if ! [[ "$val" =~ ^[0-9]+$ ]]; then
+             echo "Invalid integer. Try again."
+             continue
         fi
-
-        if [[ "${col_types[i]}" == "str" ]]; then
-           # Remove leading/trailing spaces
-              val=$(echo "$val" | xargs)
-	      # Check empty
-              if [[ -z "$val" ]]; then
-         echo "String cannot be empty. Try again."
-        continue
-    fi
-
-    # Check only letters and optional spaces
-    if ! [[ "$val" =~ ^[a-zA-Z[:space:]]+$ ]]; then
-        echo "Invalid string. Only letters and spaces allowed. Try again."
+	 # primary key cannot be zero
+    if [[ "${col_names[i]}" == "$primary_key" && "$val" -eq 0 ]]; then
+        echo "Primary key cannot be zero!"
         continue
     fi
  fi
+
+  
+
+       if [[ "${col_types[i]}" == "str" ]]; then
+    if [[ -z "$val" ]]; then
+        echo "String cannot be empty."
+        continue
+    elif [[ "$val" == *"|"* ]]; then
+        echo "String cannot contain the '|' character."
+        continue
+    fi
+    fi
+
 
         # PK uniqueness
         if [[ "${col_names[i]}" == "$primary_key" ]]; then
@@ -105,7 +109,7 @@ for i in "${!col_names[@]}"; do
             fi
         fi
 
-        # ✅ value accepted
+        # value accepted
         temp_values+=("$val")
         break
     done

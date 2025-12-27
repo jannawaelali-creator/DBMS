@@ -75,6 +75,13 @@ delete_fromtable() {
         return
     fi
 
+    # Confirmation
+  read -r -p "Are you sure you want to delete the row with primary key '$pk_val'? (y/n): " confirm
+
+  if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+    echo "Delete operation canceled."
+    return
+  fi
     # Delete row
     awk -v pk="$pk_val" -F'|' '
         NR<=2 {print; next}

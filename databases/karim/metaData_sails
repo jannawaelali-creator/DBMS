@@ -1,0 +1,6 @@
+Table Name: sails
+Columns: 4
+primary_key:id:int
+column:amount:int
+column:telephone_number:str
+column:kids:int
