@@ -49,12 +49,34 @@ update_table() {
     done < "$meta_file"
 
     # ---------- Ask for PK ----------
-    read -r -p "Enter PRIMARY KEY ($primary_key): " pk_value
+while true; do
+    read -r -p "Enter PRIMARY KEY ($primary_key, ${col_types[0]}): " pk_value
+    pk_value=$(echo "$pk_value" | xargs)
     if [ -z "$pk_value" ]; then
         echo "Primary key cannot be empty!"
-        return
+        continue
     fi
 
+    if [ "${col_types[0]}" == "int" ]; then
+        if ! [[ "$pk_value" =~ ^-?[0-9]+$ ]]; then
+            echo "Primary key must be an integer!"
+            continue
+        elif [ "$pk_value" -lt 0 ]; then
+            echo "Primary key cannot be negative!"
+            continue
+        elif [ "$pk_value" -eq 0 ]; then
+            echo "Primary key cannot be zero!"
+            continue
+        fi
+    fi
+
+    if [ "${col_types[0]}" == "str" ] && [ -z "$pk_value" ]; then
+        echo "Primary key cannot be empty!"
+        continue
+    fi
+
+    break
+done
     # ---------- Find row ----------
     row_num=$(awk -F'|' -v pk="$pk_value" 'NR>2 {gsub(/^[ \t]+|[ \t]+$/, "", $2); if($2==pk){print NR; exit}}' "$table_name.table")
     if [ -z "$row_num" ]; then
@@ -107,6 +129,7 @@ update_table() {
         # ---------- New value ----------
         while true; do
             read -r -p "Enter new value (${col_types[index]}): " new_val
+  	    new_val=$(echo "$new_val" | xargs)
 
             # PK rules
             if [ "${col_names[index]}" == "$primary_key" ]; then
@@ -114,6 +137,23 @@ update_table() {
                     echo "Primary key cannot be empty!"
                     continue
                 fi
+
+		if ["${col_types[index]}" == "int" ]; then
+			if ! [[ "$new_val" =~ ^-?[0-9]+$ ]]; then
+				echo "Primary key must be an integer!"
+				continue;
+			elif [ "$new_val" -lt 0 ]; then
+				echo "Primary key cannot be negative!"
+				continue
+			elif [ "$new_val" -eq 0 ]; then
+				echo "Primary key cannot be zero!"
+				continue
+			fi
+		elif [ "${col_types[index]}" == "str" ] && [ -z "$new_val" ]; then
+			echo "Primary key cannot be empty!"
+			continue
+		fi
+
                 # Check uniqueness
                 exists=$(awk -F'|' -v pk="$new_val" -v line="$row_num" 'NR>2 && NR!=line {gsub(/^[ \t]+|[ \t]+$/, "", $2); if($2==pk){print 1; exit}}' "$table_name.table")
                 if [ "$exists" == "1" ]; then
@@ -129,10 +169,11 @@ update_table() {
             elif [ "${col_types[index]}" == "str" ] && [ -z "$new_val" ]; then
                 echo "String cannot be empty!"
                 continue
-            elif [ "${col_types[index]}" == "bool" ] && ! [[ "$new_val" =~ ^(true|false)$ ]]; then
-                echo "Boolean must be true or false!"
-                continue
-            fi
+	    elif [ "${col_types[index]}" == "str" ] && [[ "$new_val" == *"|"* ]]; then
+		echo "Invalid input! Column values cannot contain '|'"
+		continue
+	    fi
+
             break
         done
 
