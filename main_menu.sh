@@ -19,7 +19,7 @@ while true;do
    
     echo -e "${CYAN}${BOLD}"
     echo "╔══════════════════════════════════╗"
-    echo "║          SIMPLE DBMS              ║"
+    echo "║            DBMS                   ║"
     echo "╠══════════════════════════════════╣"
     echo "║  1) Create Database               ║"
     echo "║  2) List Databases                ║"
@@ -29,7 +29,7 @@ while true;do
     echo "╚══════════════════════════════════╝"
     echo -e "${RESET}"
 
-    echo -ne "${YELLOW}Enter your choice [1-5]: ${RESET}"
+    echo -ne "Enter your choice [1-5]: "
     read -r choice
     choice="${choice//[[:space:]]/}"
 

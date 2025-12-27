@@ -1,12 +1,23 @@
 #!/bin/bash
+ # UI Colors
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+CYAN='\033[0;36m'
+YELLOW='\033[1;33m'
+NC='\033[0m'   # Reset
 
 insert_table() {
-    echo -e "\n=== Insert Into Table ===\n"
+    
+    # Header box
+    echo -e "${CYAN}+--------------------------------------+${NC}"
+    printf "${CYAN}| %-36s |\n" " Insert Into Table "
+    echo -e "${CYAN}+--------------------------------------+${NC}"
+    echo
 
     # List available tables
     tables=(*.table)
     if [ ${#tables[@]} -eq 0 ]; then
-        echo "No tables found in this database."
+        echo -e "${RED} No tables found in this database. ${NC} "
         return
     fi
 
@@ -19,13 +30,13 @@ insert_table() {
         echo "You selected table: $table_name"
         break
     else
-        echo "Invalid choice, try again."
+        echo -e  "${RED}  Invalid choice, try again.{$NC} "
     fi
  done
 
     meta_file="metaData_$table_name"
     if [ ! -f "$meta_file" ]; then
-        echo "Metadata for '$table_name' not found!"
+        echo -e  " ${RED} Metadata for '$table_name' not found! ${NC} "
         return
     fi
 
@@ -57,25 +68,25 @@ for i in "${!col_names[@]}"; do
 
         # Ctrl+D (EOF) → cancel safely
         if [[ $? -ne 0 ]]; then
-            echo -e "\nInsert canceled."
+            echo -e "${RED}  \nInsert canceled.${NC} "
             return
         fi
 
         # Primary key not null
         if [[ "${col_names[i]}" == "$primary_key" && -z "$val" ]]; then
-            echo "Primary key cannot be empty. Try again."
+            echo -e "${RED} Primary key cannot be empty. Try again.${NC} "
             continue
         fi
 
         # Type validation
         if [[ "${col_types[i]}" == "int" ]];then
 	    if ! [[ "$val" =~ ^[0-9]+$ ]]; then
-             echo "Invalid integer. Try again."
+             echo -e  " ${RED} Invalid integer. Try again.${NC} "
              continue
         fi
 	 # primary key cannot be zero
     if [[ "${col_names[i]}" == "$primary_key" && "$val" -eq 0 ]]; then
-        echo "Primary key cannot be zero!"
+        echo -e  "${RED} Primary key cannot be zero! ${NC}  "
         continue
     fi
  fi
@@ -84,10 +95,10 @@ for i in "${!col_names[@]}"; do
 
        if [[ "${col_types[i]}" == "str" ]]; then
     if [[ -z "$val" ]]; then
-        echo "String cannot be empty."
+        echo -e "${RED}  String cannot be empty.${NC} "
         continue
     elif [[ "$val" == *"|"* ]]; then
-        echo "String cannot contain the '|' character."
+        echo -e "${RED} String cannot contain the '|' character.${NC} "
         continue
     fi
     fi
@@ -104,7 +115,7 @@ for i in "${!col_names[@]}"; do
             then
                 :
             else
-                echo "Primary key already exists. Try again."
+                echo -e "${RED}  Primary key already exists. Try again.${NC} "
                 continue
             fi
         fi
@@ -124,5 +135,5 @@ done
     done
 
     echo "$row" >> "$table_name.table"
-    echo "Row inserted successfully into '$table_name'."
+    echo -e  "${GREEN} Row inserted successfully into '$table_name'.${NC} "
 }
