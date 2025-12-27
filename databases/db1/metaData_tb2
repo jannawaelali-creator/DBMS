@@ -1,0 +1,6 @@
+Table Name: tb2
+Columns: 4
+primary_key:id:int
+column:name:str
+column:age:int
+column:email:str

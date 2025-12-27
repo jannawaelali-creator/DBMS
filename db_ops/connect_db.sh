@@ -5,6 +5,7 @@ source ./table_ops/insert_table.sh
 source ./table_ops/drop_table.sh
 source ./table_ops/delete_fromtable.sh
 source ./table_ops/update_table.sh
+source ./table_ops/select_from_table.sh
 
 DB_PATH="./databases"
 
@@ -39,7 +40,7 @@ connected_db_menu() {
             2) list_tables  ;;
             3) drop_table  ;;
             4) insert_table  ;;
-            5) ./table_ops/select_table.sh "$DB_PATH/$db_name" ;;
+            5) select_table ;;
             6) delete_fromtable  ;;
             7)update_table ;; 
             8) break ;;
