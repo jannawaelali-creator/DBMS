@@ -1,5 +1,0 @@
-Table Name: students
-Columns: 3
-primary_key:id:int
-column:name:str
-column:courses:int

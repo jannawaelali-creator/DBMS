@@ -1,5 +1,0 @@
-Table Name: name
-Columns: 3
-primary_key:name:str
-column:name:int
-column:name:str

@@ -1,36 +1,46 @@
 #!/bin/bash
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+CYAN='\033[0;36m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
 
 create_table() {
-    echo -e "\n=== Create Table ===\n"
+    echo -e "${CYAN}+--------------------------------------+${NC}"
+   printf "${CYAN}| %-36s |${NC}\n" " Create Table"
+   echo -e "${CYAN}+--------------------------------------+${NC}"
+   echo
 
     # ---------------- Table name ----------------
     read -r -p "Enter table name (start with letter, no spaces): " table_name
     table_name=$(echo "$table_name" | xargs)
 
     if [ -z "$table_name" ]; then
-        echo "Table name cannot be empty!"
+        echo -e "${RED} Table name cannot be empty!${NC} "
         create_table
     elif [[ "$table_name" =~ [[:space:]] ]]; then
-        echo "Table name cannot contain spaces!"
+        echo -e "${RED} Table name cannot contain spaces! ${NC} "
         create_table
     elif [[ ! "$table_name" =~ ^[a-zA-Z] ]]; then
-        echo "Table name must start with a letter!"
-        return
+        echo -e "${RED} Table name must start with a letter! ${NC} "
+        create_table
     elif [ -f "$table_name.table" ]; then
-        echo "Table already exists!"
-        return
+        echo -e " ${RED} Table already exists! ${NC} "
+        create_table
     fi
 
     # ---------------- Columns count ----------------
     read -r -p "Enter number of columns: " col_count
 
    if [ -z "$col_count" ]; then
-    echo "Number of columns cannot be empty!"
+    echo -e "${RED} Number of columns cannot be empty!${NC} "
     return
  fi
 
   if ! [[ "$col_count" -gt 0 ]]; then
-    echo "Please enter a valid positive number!"
+    echo -e "${RED}  Please enter a valid positive number!${NC} "
     return
  fi
 
@@ -47,14 +57,14 @@ create_table() {
             col_name=$(echo "$col_name" | xargs)
 
             if [ -z "$col_name" ]; then
-                echo "Column name cannot be empty!"
+                echo -e "${RED} Column name cannot be empty! ${NC} "
             elif [[ "$col_name" =~ [[:space:]] ]]; then
-                echo "Column name cannot contain spaces!"
+                echo -e  "${RED} Column name cannot contain spaces!${NC} "
             elif [[ ! "$col_name" =~ ^[a-zA-Z] ]]; then
-                echo "Column name must start with a letter!"
+                echo -e "${RED} Column name must start with a letter!${NC} "
 
 	    elif [[ " ${col_names[@]} " =~ " $col_name " ]]; then
-        echo "Column name '$col_name' already exists! Choose another name."
+        echo -e  "${RED} Column name '$col_name' already exists! Choose another name.${NC} "
 	   else
                 break
             fi
@@ -62,13 +72,13 @@ create_table() {
 
         # ---- Primary Key ----
         if [ "$i" -eq 1 ]; then
-            echo "This column is the Primary Key"
-            PS3="choose 1 or 2 based on what type you want:"  
+            echo -e "${GREEN} This column is the Primary Key ${NC} " 
+            PS3="choose 1 or 2 based on what type you want:"
             select choice in "int" "str"; do
                 case $REPLY in
                     1) col_type="int"; break ;;
                     2) col_type="str"; break ;;
-                    *) echo "Invalid choice!" ;;
+                    *)  echo -e  "${RED} Invalid choice! ${NC} " ;;
                 esac
             done
 
@@ -83,7 +93,7 @@ create_table() {
                 case $REPLY in
                     1) col_type="int"; break ;;
                     2) col_type="str"; break ;;
-                    *) echo "Invalid choice!" ;;
+                    *) echo -e "{$RED} Invalid choice! ${NC} " ;;
                 esac
             done
 
@@ -107,7 +117,8 @@ create_table() {
     echo "$header" >> "$table_name.table"
     echo "$(printf '%0.s-' {1..${#header}})" >> "$table_name.table"
 
-    echo -e "\nTable '$table_name' created successfully!\n"
+    echo -e "${GREEN}  \nTable '$table_name' created successfully!\n ${NC} "
 }
+
 
 
