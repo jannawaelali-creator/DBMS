@@ -1,29 +1,35 @@
 #!/bin/bash
 
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+CYAN='\033[0;36m'
+YELLOW='\033[1;33m'
+NC='\033[0m'   # Reset
+
 update_table() {
-    echo -e "\n=== Update Table ===\n"
+    echo -e "\n${CYAN}=== Update Table ===${NC}\n"
 
     # ---------- List tables ----------
     tables=(*.table)
     if [ ${#tables[@]} -eq 0 ]; then
-        echo "No tables found."
+        echo -e "${RED}No tables found.${NC}"
         return
     fi
 
-    echo "Select table:"
-    PS3="Choose: "
+    echo -e "${CYAN}Select table:${NC}"
+    PS3="$(echo -e "${YELLOW}Choose: ${NC}")"
     select t in "${tables[@]}"; do
         if [[ -n "$t" ]]; then
             table_name="${t%.table}"
             break
         else
-            echo "Invalid choice!"
+            echo -e "${RED}Invalid choice!${NC}"
         fi
     done
 
     meta_file="metaData_$table_name"
     if [ ! -f "$meta_file" ]; then
-        echo "Metadata not found!"
+        echo -e "${RED}Metadata not found!${NC}"
         return
     fi
 
@@ -33,7 +39,6 @@ update_table() {
     primary_key=""
     i=0
     while read line; do
-        # Skip first 2 lines (Table Name, Columns)
         if [ $i -lt 2 ]; then
             i=$((i+1))
             continue
@@ -49,45 +54,40 @@ update_table() {
     done < "$meta_file"
 
     # ---------- Ask for PK ----------
-while true; do
-    read -r -p "Enter PRIMARY KEY ($primary_key, ${col_types[0]}): " pk_value
-    pk_value=$(echo "$pk_value" | xargs)
-    if [ -z "$pk_value" ]; then
-        echo "Primary key cannot be empty!"
-        continue
-    fi
+    while true; do
+        read -r -p "$(echo -e "${YELLOW}Enter PRIMARY KEY ($primary_key, ${col_types[0]}): ${NC}")" pk_value
+        pk_value=$(echo "$pk_value" | xargs)
 
-    if [ "${col_types[0]}" == "int" ]; then
-        if ! [[ "$pk_value" =~ ^-?[0-9]+$ ]]; then
-            echo "Primary key must be an integer!"
-            continue
-        elif [ "$pk_value" -lt 0 ]; then
-            echo "Primary key cannot be negative!"
-            continue
-        elif [ "$pk_value" -eq 0 ]; then
-            echo "Primary key cannot be zero!"
+        if [ -z "$pk_value" ]; then
+            echo -e "${RED}Primary key cannot be empty!${NC}"
             continue
         fi
-    fi
 
-    if [ "${col_types[0]}" == "str" ] && [ -z "$pk_value" ]; then
-        echo "Primary key cannot be empty!"
-        continue
-    fi
+        if [ "${col_types[0]}" == "int" ]; then
+            if ! [[ "$pk_value" =~ ^-?[0-9]+$ ]]; then
+                echo -e "${RED}Primary key must be an integer!${NC}"
+                continue
+            elif [ "$pk_value" -lt 0 ]; then
+                echo -e "${RED}Primary key cannot be negative!${NC}"
+                continue
+            elif [ "$pk_value" -eq 0 ]; then
+                echo -e "${RED}Primary key cannot be zero!${NC}"
+                continue
+            fi
+        fi
+        break
+    done
 
-    break
-done
     # ---------- Find row ----------
     row_num=$(awk -F'|' -v pk="$pk_value" 'NR>2 {gsub(/^[ \t]+|[ \t]+$/, "", $2); if($2==pk){print NR; exit}}' "$table_name.table")
     if [ -z "$row_num" ]; then
-        echo "Record not found!"
+        echo -e "${RED}Record not found!${NC}"
         return
     fi
 
     # ---------- Load row values ----------
     values=()
     line=$(sed -n "${row_num}p" "$table_name.table")
-    # Split by | and trim spaces
     IFS='|' read -ra temp <<< "$line"
     for ((j=1; j<${#temp[@]}; j++)); do
         values+=("$(echo "${temp[j]}" | xargs)")
@@ -95,89 +95,61 @@ done
 
     # ---------- Update loop ----------
     while true; do
-        echo -e "\nWhich column to update?"
+        echo -e "\n${CYAN}Which column to update?${NC}"
         for idx in "${!col_names[@]}"; do
-            echo "$((idx+1))) ${col_names[idx]}"
+            echo -e "${YELLOW}$((idx+1)))${NC} ${col_names[idx]}"
         done
-        echo "$(( ${#col_names[@]} + 1 ))) Exit"
+        echo -e "${YELLOW}$(( ${#col_names[@]} + 1 )))${NC} Exit"
 
-        read -r -p "Choice: " choice
+        read -r -p "$(echo -e "${YELLOW}Choice: ${NC}")" choice
 
-	if [[ -z "$choice" || "$choice" == *" "* ]]; then
-		echo "Invalid choice! can't be empty"
-		continue
-	fi
+        if [[ -z "$choice" || "$choice" == *" "* ]]; then
+            echo -e "${RED}Invalid choice! Can't be empty.${NC}"
+            continue
+        fi
 
-	if ! [[ "$choice" =~ ^[0-9]+$ ]]; then
-   		 echo "Invalid choice! Please enter a number."
-    		 continue
-	fi
+        if ! [[ "$choice" =~ ^[0-9]+$ ]]; then
+            echo -e "${RED}Invalid choice! Please enter a number.${NC}"
+            continue
+        fi
 
         if [ "$choice" -eq $(( ${#col_names[@]} + 1 )) ]; then
-	    echo "Invalid choice!"
+            echo -e "${YELLOW}Update cancelled.${NC}"
             break
         fi
 
         index=$((choice-1))
         if [ $index -lt 0 ] || [ $index -ge ${#col_names[@]} ]; then
-            echo "Invalid choice!"
+            echo -e "${RED}Invalid choice!${NC}"
             continue
         fi
 
-        echo "Old value: ${values[index]}"
+        echo -e "${CYAN}Old value:${NC} ${values[index]}"
 
         # ---------- New value ----------
         while true; do
-            read -r -p "Enter new value (${col_types[index]}): " new_val
-  	    new_val=$(echo "$new_val" | xargs)
+            read -r -p "$(echo -e "${YELLOW}Enter new value (${col_types[index]}): ${NC}")" new_val
+            new_val=$(echo "$new_val" | xargs)
 
-            # PK rules
-            if [ "${col_names[index]}" == "$primary_key" ]; then
-                if [ -z "$new_val" ]; then
-                    echo "Primary key cannot be empty!"
-                    continue
-                fi
-
-		if ["${col_types[index]}" == "int" ]; then
-			if ! [[ "$new_val" =~ ^-?[0-9]+$ ]]; then
-				echo "Primary key must be an integer!"
-				continue;
-			elif [ "$new_val" -lt 0 ]; then
-				echo "Primary key cannot be negative!"
-				continue
-			elif [ "$new_val" -eq 0 ]; then
-				echo "Primary key cannot be zero!"
-				continue
-			fi
-		elif [ "${col_types[index]}" == "str" ] && [ -z "$new_val" ]; then
-			echo "Primary key cannot be empty!"
-			continue
-		fi
-
-                # Check uniqueness
-                exists=$(awk -F'|' -v pk="$new_val" -v line="$row_num" 'NR>2 && NR!=line {gsub(/^[ \t]+|[ \t]+$/, "", $2); if($2==pk){print 1; exit}}' "$table_name.table")
-                if [ "$exists" == "1" ]; then
-                    echo "Primary key already exists!"
-                    continue
-                fi
+            if [ "${col_names[index]}" == "$primary_key" ] && [ -z "$new_val" ]; then
+                echo -e "${RED}Primary key cannot be empty!${NC}"
+                continue
             fi
 
-            # Type check
             if [ "${col_types[index]}" == "int" ] && ! [[ "$new_val" =~ ^[0-9]+$ ]]; then
-                echo "Invalid integer!"
+                echo -e "${RED}Invalid integer!${NC}"
                 continue
             elif [ "${col_types[index]}" == "str" ] && [ -z "$new_val" ]; then
-                echo "String cannot be empty!"
+                echo -e "${RED}String cannot be empty!${NC}"
                 continue
-	    elif [ "${col_types[index]}" == "str" ] && [[ "$new_val" == *"|"* ]]; then
-		echo "Invalid input! Column values cannot contain '|'"
-		continue
-	    fi
+            elif [ "${col_types[index]}" == "str" ] && [[ "$new_val" == *"|"* ]]; then
+                echo -e "${RED}Invalid input! Column values cannot contain '|'.${NC}"
+                continue
+            fi
 
             break
         done
 
-        # Apply update
         values[index]="$new_val"
 
         # ---------- Build row ----------
@@ -189,9 +161,9 @@ done
         # ---------- Save updated row ----------
         awk -v line="$row_num" -v new="$new_row" 'NR==line {print new; next} {print}' "$table_name.table" > tmp && mv tmp "$table_name.table"
 
-        echo "Column updated successfully!"
+        echo -e "${GREEN}Column updated successfully!${NC}"
     done
 
-    echo -e "\nUpdate operation completed.\n"
+    echo -e "\n${GREEN}Update operation completed.${NC}\n"
 }
 

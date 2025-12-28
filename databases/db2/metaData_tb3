@@ -1,4 +1,0 @@
-Table Name: tb3
-Columns: 2
-primary_key:num:int
-column:nom:str

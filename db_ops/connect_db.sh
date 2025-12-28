@@ -19,6 +19,7 @@ DB_PATH="./databases"
 connected_db_menu() {
     local db_name="$1"
     while true; do
+	    clear
         
   echo -e "${CYAN}+--------------------------------------+${NC}"
   printf "${CYAN}| %-36s |${NC}\n" "connected to Database: $db_name"
