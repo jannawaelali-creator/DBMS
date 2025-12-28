@@ -1,0 +1,4 @@
+Table Name: courses
+Columns: 2
+primary_key:number:int
+column:name:str

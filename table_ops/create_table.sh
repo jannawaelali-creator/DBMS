@@ -19,16 +19,16 @@ create_table() {
 
     if [ -z "$table_name" ]; then
         echo -e "${RED} Table name cannot be empty!${NC} "
-        create_table
+       return 
     elif [[ "$table_name" =~ [[:space:]] ]]; then
         echo -e "${RED} Table name cannot contain spaces! ${NC} "
-        create_table
+        return
     elif [[ ! "$table_name" =~ ^[a-zA-Z] ]]; then
         echo -e "${RED} Table name must start with a letter! ${NC} "
-        create_table
+        return
     elif [ -f "$table_name.table" ]; then
         echo -e " ${RED} Table already exists! ${NC} "
-        create_table
+        return
     fi
 
     # ---------------- Columns count ----------------
