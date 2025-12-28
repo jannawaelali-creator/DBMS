@@ -241,7 +241,7 @@ chmod +x *.sh db_ops/*.sh table_ops/*.sh
 ## 👩‍💻 Author
 
 * **Janna Wael** – ITI student, Cloud Platform Development track
-* **Nourhan Ahmed** – ITI student, Cloud Platform Development track
+* **Nourhan Ibrahim** – ITI student, Cloud Platform Development track
 
 ---
 
