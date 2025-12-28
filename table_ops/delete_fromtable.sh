@@ -15,12 +15,14 @@ delete_fromtable() {
     echo
 
     # List tables
+    shopt -s nullglob
     tables=(*.table)
     if [ ${#tables[@]} -eq 0 ]; then
         echo -e "${RED}  No tables found in this database .${NC} "
         return
     fi
 
+    shopt -u nullglob
 
     # Let user select a table using a menu
   echo -e "Select a table to delete from:"

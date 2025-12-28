@@ -3,7 +3,6 @@
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 CYAN='\033[0;36m'
-YELLOW='\033[1;33m'
 NC='\033[0m'   # Reset
 
 drop_table() {
@@ -17,15 +16,17 @@ drop_table() {
 
     if [ ${#tables[@]} -eq 0 ]; then
         echo -e "${RED}No tables found in this database.${NC}"
+        shopt -u nullglob
         return
     fi
 
     echo -e "${CYAN}Available Tables:${NC}"
-    PS3="$(echo -e "${YELLOW}Enter the number of the table to drop: ${NC}")"
+    PS3="$(echo -e "Enter the number of the table to drop: ")"
 
     select t in "${tables[@]}" "Exit"; do
         if [[ "$t" == "Exit" ]]; then
             echo -e "${RED}Cancelled table deletion.${NC}"
+            shopt -u nullglob
             return
 
         elif [[ -n "$t" ]]; then
@@ -48,7 +49,7 @@ drop_table() {
                 break
                 ;;
             [Nn])
-                echo -e "${YELLOW}Operation cancelled.${NC}"
+                echo -e "${RED}Operation cancelled.${NC}"
                 break
                 ;;
             *)

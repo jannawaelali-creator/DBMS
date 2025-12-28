@@ -3,21 +3,23 @@
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 CYAN='\033[0;36m'
-YELLOW='\033[1;33m'
 NC='\033[0m'   # Reset
 
 update_table() {
     echo -e "\n${CYAN}=== Update Table ===${NC}\n"
 
     # ---------- List tables ----------
+    shopt -s nullglob
     tables=(*.table)
     if [ ${#tables[@]} -eq 0 ]; then
         echo -e "${RED}No tables found.${NC}"
         return
     fi
 
+    shopt -u nullglob
+
     echo -e "${CYAN}Select table:${NC}"
-    PS3="$(echo -e "${YELLOW}Choose: ${NC}")"
+    PS3="Choose: "
     select t in "${tables[@]}"; do
         if [[ -n "$t" ]]; then
             table_name="${t%.table}"
@@ -55,7 +57,7 @@ update_table() {
 
     # ---------- Ask for PK ----------
     while true; do
-        read -r -p "$(echo -e "${YELLOW}Enter PRIMARY KEY ($primary_key, ${col_types[0]}): ${NC}")" pk_value
+        read -r -p "Enter PRIMARY KEY ($primary_key, ${col_types[0]}): " pk_value
         pk_value=$(echo "$pk_value" | xargs)
 
         if [ -z "$pk_value" ]; then
@@ -97,11 +99,11 @@ update_table() {
     while true; do
         echo -e "\n${CYAN}Which column to update?${NC}"
         for idx in "${!col_names[@]}"; do
-            echo -e "${YELLOW}$((idx+1)))${NC} ${col_names[idx]}"
+            echo "$((idx+1))) ${col_names[idx]}"
         done
-        echo -e "${YELLOW}$(( ${#col_names[@]} + 1 )))${NC} Exit"
+        echo "$(( ${#col_names[@]} + 1 ))) Exit"
 
-        read -r -p "$(echo -e "${YELLOW}Choice: ${NC}")" choice
+        read -r -p "Choice: " choice
 
         if [[ -z "$choice" || "$choice" == *" "* ]]; then
             echo -e "${RED}Invalid choice! Can't be empty.${NC}"
@@ -114,7 +116,7 @@ update_table() {
         fi
 
         if [ "$choice" -eq $(( ${#col_names[@]} + 1 )) ]; then
-            echo -e "${YELLOW}Update cancelled.${NC}"
+            echo -e "${RED}Update cancelled.${NC}"
             break
         fi
 
@@ -128,7 +130,7 @@ update_table() {
 
         # ---------- New value ----------
         while true; do
-            read -r -p "$(echo -e "${YELLOW}Enter new value (${col_types[index]}): ${NC}")" new_val
+            read -r -p "Enter new value (${col_types[index]}): " new_val
             new_val=$(echo "$new_val" | xargs)
 
             if [ "${col_names[index]}" == "$primary_key" ] && [ -z "$new_val" ]; then

@@ -14,12 +14,15 @@ insert_table() {
     echo -e "${CYAN}+--------------------------------------+${NC}"
     echo
 
+    shopt -s nullglob
     # List available tables
     tables=(*.table)
     if [ ${#tables[@]} -eq 0 ]; then
         echo -e "${RED} No tables found in this database. ${NC} "
         return
     fi
+
+    shopt -u nullglob
 
   # Let user select a table using a menu
  echo -e "Select a table to insert into:"
