@@ -9,20 +9,21 @@ NC='\033[0m'
 
 list_tables() {
    clear 
-    
+
+    shopt -s nullglob
+
     # Header box
     echo -e "${CYAN}+--------------------------------------+${NC}"
     printf "${CYAN}| %-36s |\n" " Tables in Current Database "
     echo -e "${CYAN}+--------------------------------------+${NC}"
     echo
-
      
     
     # Find all files ending with .table
     tables=(*.table)
     
     if [ ${#tables[@]} -eq 0  ]; then
-         echo " ${RED}  No tables found in this database .${NC} "
+         echo -e " ${RED}  No tables found in this database .${NC} "
     else 
          # Print header in white
         printf "%-3s %-30s\n" "No." "Table Name"
@@ -34,6 +35,7 @@ list_tables() {
             ((i++))
         done
     fi
-    
+  
+    shopt -u nullglob   
    
 }

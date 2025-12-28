@@ -1,47 +1,62 @@
 #!/bin/bash
 
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+CYAN='\033[0;36m'
+YELLOW='\033[1;33m'
+NC='\033[0m'   # Reset
+
 drop_table() {
-    echo -e "\n=== Drop Table ===\n"
+
+    shopt -s nullglob
+
+    echo -e "\n${CYAN}=== Drop Table ===${NC}\n"
 
     # List available tables
-    tables=(*.table "Exit")
+    tables=(*.table)
+
     if [ ${#tables[@]} -eq 0 ]; then
-        echo "No tables found in this database."
+        echo -e "${RED}No tables found in this database.${NC}"
         return
     fi
 
+    echo -e "${CYAN}Available Tables:${NC}"
+    PS3="$(echo -e "${YELLOW}Enter the number of the table to drop: ${NC}")"
 
-    # Let user select table to drop
-    PS3="Enter the number of the table to drop: "
-    select t in "${tables[@]}"; do
-	if [[ "$t" == "Exit" ]]; then
-	    echo "Cancelled table deletion."
-	    return
+    select t in "${tables[@]}" "Exit"; do
+        if [[ "$t" == "Exit" ]]; then
+            echo -e "${RED}Cancelled table deletion.${NC}"
+            return
+
         elif [[ -n "$t" ]]; then
             table_name="${t%.table}"
             break
+
         else
-            echo "Invalid choice, try again."
+            echo -e "${RED}Invalid choice, try again.${NC}"
         fi
     done
 
     # Confirm deletion
     while true; do
-        read -r -p "Are you sure you want to delete table '$table_name'? [y/n]: " confirm
+        read -r -p "$(echo -e "${RED}Are you sure you want to delete table '$table_name'? [y/n]: ${NC}")" confirm
+
         case "$confirm" in
             [Yy])
                 rm -f "$table_name.table" "metaData_$table_name"
-                echo "Table '$table_name' has been deleted successfully."
+                echo -e "${GREEN}Table '$table_name' has been deleted successfully.${NC}"
                 break
                 ;;
             [Nn])
-                echo "Operation cancelled."
+                echo -e "${YELLOW}Operation cancelled.${NC}"
                 break
                 ;;
             *)
-                echo "Invalid input. Please enter 'y' for yes or 'n' for no."
+                echo -e "${RED}Invalid input. Please enter 'y' for yes or 'n' for no.${NC}"
                 ;;
         esac
     done
+
+    shopt -u nullglob
 }
 

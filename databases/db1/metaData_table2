@@ -1,4 +1,0 @@
-Table Name: table2
-Columns: 2
-primary_key:id:int
-column:name:str
