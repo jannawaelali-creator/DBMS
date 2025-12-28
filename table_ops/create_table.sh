@@ -93,7 +93,7 @@ create_table() {
                 case $REPLY in
                     1) col_type="int"; break ;;
                     2) col_type="str"; break ;;
-                    *) echo -e "{$RED} Invalid choice! ${NC} " ;;
+                    *) echo -e "${RED} Invalid choice! ${NC} " ;;
                 esac
             done
 
